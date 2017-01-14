@@ -1,4 +1,4 @@
-package sample.stream
+package server
 
 import akka.actor.{ActorRef, Props}
 import akka.stream.actor.ActorSubscriberMessage.OnNext
@@ -14,19 +14,20 @@ class MessageReciever(router: ActorRef) extends ActorSubscriber {
   import MessageReciever._
 
   val MaxBufferSize = 100
-  var buf = Vector.empty[Message]
+  var uid = ""
 
   override val requestStrategy = new MaxInFlightRequestStrategy(max = MaxBufferSize) {
-    override def inFlightInternally: Int = buf.size
+    override def inFlightInternally: Int = 0 //not safe :)
   }
 
   def receive = {
-    case OnNext(x:ByteString) =>
-      val msg = x.utf8String.split(":")
-      if(msg.size == 2) {
-        router ! Message(msg(1), msg(0))
-      }
-    case x:Message =>
-      buf = buf :+ x
+    case OnNext(MyUid(inUid)) =>
+      uid = inUid
+    case OnNext(x:Message) =>
+      router ! x
+    case OnNext(x:Disconnect) =>
+      router ! CtrlDisconnect(uid)
+    case OnNext(x:ListUsers) =>
+      router ! CtrlListUsers(uid)
   }
 }

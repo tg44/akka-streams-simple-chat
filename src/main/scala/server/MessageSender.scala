@@ -1,4 +1,4 @@
-package sample.stream
+package server
 
 import akka.actor.{ActorRef, Props}
 import akka.stream.actor.ActorPublisherMessage.{Cancel, Request}
@@ -15,17 +15,18 @@ object MessageSender {
   case object MsgDenied
 }
 
-class MessageSender(uid: String, router: ActorRef) extends ActorPublisher[Message] {
+class MessageSender(uid: String, router: ActorRef) extends ActorPublisher[InMsg] {
   import MessageSender._
   import ActorSubscriberMessage._
 
   val MaxBufferSize = 100
-  var buf = Vector.empty[Message]
+  var buf = Vector.empty[InMsg]
 
   @throws[Exception](classOf[Exception])
   override def preStart(): Unit = {
     super.preStart()
-    router ! MessageRouter.SignUp(uid)
+    router ! CtrlSignUp(uid)
+    buf :+= MyUid(uid)
     buf :+= Message(uid,uid)
   }
 

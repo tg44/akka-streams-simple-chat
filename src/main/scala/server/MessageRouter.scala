@@ -1,11 +1,8 @@
-package sample.stream
+package server
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import sample.stream.MessageRouter.{ConnectionClosed, SignUp}
 
 object MessageRouter {
-  case class SignUp(uid: String)
-  case class ConnectionClosed(uid: String)
 }
 
 class MessageRouter extends Actor with ActorLogging{
@@ -20,8 +17,9 @@ class MessageRouter extends Actor with ActorLogging{
   }
 
   override def receive = {
-    case SignUp(uid) => users += (uid -> sender())
+    case CtrlSignUp(uid) => users += (uid -> sender())
     case x: Message => users(x.uid) ! x
-    case ConnectionClosed(uid) => users -= uid
+    case CtrlListUsers(uid) => users(uid) ! Message(users.keys.fold("")((a,u) => a + u + ";"),uid)
+    case CtrlDisconnect(uid) => users -= uid
   }
 }
