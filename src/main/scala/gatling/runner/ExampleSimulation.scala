@@ -14,13 +14,13 @@ class ExampleSimulation extends Simulation {
     pause(1).
   exec(sc("user").pickOneUser())
     .pause(1)
-    .repeat(5) {
+    .repeat(50) {
       exec(sc("user").sendMsg())
         .pause(30 millis)
     }.
     exec(sc("user").disconnect())
 
   setUp(
-    scn.inject(atOnceUsers(15))
+    scn.inject(atOnceUsers(50))
   ).protocols(simpleChatProtocol)
 }
