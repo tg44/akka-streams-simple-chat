@@ -9,7 +9,6 @@ class MessageRouter extends Actor with ActorLogging{
 
   var users = Map.empty[String, ActorRef]
 
-
   @throws[Exception](classOf[Exception])
   override def preStart(): Unit = {
     super.preStart()

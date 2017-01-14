@@ -1,0 +1,10 @@
+{
+  "simulation": "gatling.runner.ExampleSimulation",
+  "simulationId": "examplesimulation",
+  "start": 1484416663983,
+  "description": "",
+  "scenarios": ["test"],
+  "assertions": [
+
+  ]
+}
