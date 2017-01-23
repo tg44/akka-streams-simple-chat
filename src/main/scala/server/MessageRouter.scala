@@ -22,7 +22,7 @@ class MessageRouter extends Actor with ActorLogging{
 			else
 				println("key not found: "+x.uid)
 		}
-    case CtrlListUsers(uid) => users(uid) ! Message(users.keys.fold("")((a,u) => a + u + ";"),uid)
+    case CtrlListUsers(uid) => users(uid) ! Message(users.keys.fold("")((a,u) => a + u + ";")+"!",uid)
     case CtrlDisconnect(uid) => users -= uid
   }
 }

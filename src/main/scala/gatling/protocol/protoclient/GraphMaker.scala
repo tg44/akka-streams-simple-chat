@@ -2,8 +2,8 @@ package gatling.protocol.protoclient
 
 import akka.NotUsed
 import akka.actor.{ActorRef, ActorSystem}
-import akka.stream.ClosedShape
 import akka.stream.scaladsl.{Flow, Framing, GraphDSL, RunnableGraph, Sink, Source, Tcp}
+import akka.stream.{ClosedShape, FlowShape}
 import akka.util.ByteString
 
 
@@ -18,7 +18,7 @@ object GraphMaker {
 		Literal(Constant(raw)).toString
 	}
 
-	def bsframer: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].via(Framing.delimiter(ByteString("˙"), maximumFrameLength = 1000, allowTruncation = true))
+	def bsframer: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].via(Framing.delimiter(ByteString("!"), maximumFrameLength = 1000, allowTruncation = true))
 
 	def printer: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].map(x => {
 		println(escape(x.utf8String));
@@ -29,7 +29,7 @@ object GraphMaker {
 		val source = b.add(Source.actorPublisher[String](MessageSender.props(router)))
 		val tcp = b.add(Tcp().outgoingConnection(ip, port))
 		val sink = b.add(Sink.actorSubscriber(MessageReceiver.props(router)))
-		val mapToByteStr = b.add(Flow[String].map(x => ByteString(x)))
+		val mapToByteStr = b.add(Flow[String].map(x => ByteString(x + "!")))
 		//val framer: FlowShape[ByteString, ByteString] = b.add(bsframer)
 		//val separator = b.add(Flow[String].map(x => ByteString(x + "˙")))
 

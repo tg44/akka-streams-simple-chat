@@ -63,7 +63,7 @@ object GraphMaker {
 		Literal(Constant(raw)).toString
 	}
 
-	def bsframer: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].via(Framing.delimiter(ByteString("˙"), maximumFrameLength = 1000, allowTruncation = true))
+	def bsframer: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].via(Framing.delimiter(ByteString("!"), maximumFrameLength = 1000, allowTruncation = true))
 
 	def printer: Flow[ByteString, ByteString, NotUsed] = Flow[ByteString].map(x => {
 		println(escape(x.utf8String)); x
@@ -90,23 +90,24 @@ object GraphMaker {
 
 		val merger = b.add(Merge[InMsg](2))
 		val bcast = b.add(Broadcast[InMsg](2))
-		//val framer = b.add(bsframer)
+		val framer = b.add(bsframer)
 		//var printer2 = b.add(printer)
 
 		val convertFrom = b.add(Flow[ByteString].map(toInMsg))
 		val convertTo = b.add(Flow[InMsg]
 			.filter(msg => msg.isInstanceOf[Message])
 			.map(msg => msg.asInstanceOf[Message])
-			.map(msg => ByteString(msg.payload + "˙")))
+			.map(msg => ByteString(msg.payload + "!")))
+
 		val filterControl = b.add(Flow[InMsg].filter(
 			k => k.isInstanceOf[InControl]
 		))
 
-		convertFrom ~> merger.in(0)
+		framer ~> convertFrom ~> merger.in(0)
 		bcast.out(1) ~> filterControl ~> merger.in(1)
 		bcast.out(0) ~> convertTo
 
-		BidiShape(convertFrom.in, merger.out, bcast.in, convertTo.out)
+		BidiShape(framer.in, merger.out, bcast.in, convertTo.out)
 	})
 }
 
