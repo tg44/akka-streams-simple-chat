@@ -12,12 +12,16 @@ class MessageRouter extends Actor with ActorLogging{
   @throws[Exception](classOf[Exception])
   override def preStart(): Unit = {
     super.preStart()
-    log.debug(self.path toString)
   }
 
   override def receive = {
     case CtrlSignUp(uid) => users += (uid -> sender())
-    case x: Message => users(x.uid) ! x
+    case x: Message => {
+			if(users.contains(x.uid))
+				users(x.uid) ! x
+			else
+				println("key not found: "+x.uid)
+		}
     case CtrlListUsers(uid) => users(uid) ! Message(users.keys.fold("")((a,u) => a + u + ";"),uid)
     case CtrlDisconnect(uid) => users -= uid
   }

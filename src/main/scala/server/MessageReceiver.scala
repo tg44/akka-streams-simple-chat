@@ -5,13 +5,13 @@ import akka.stream.actor.ActorSubscriberMessage.OnNext
 import akka.stream.actor.{MaxInFlightRequestStrategy, ActorSubscriber}
 import akka.util.ByteString
 
-object MessageReciever {
-  def props(router: ActorRef): Props = Props(new MessageReciever(router))
+object MessageReceiver {
+  def props(router: ActorRef): Props = Props(new MessageReceiver(router))
 }
 
-class MessageReciever(router: ActorRef) extends ActorSubscriber {
+class MessageReceiver(router: ActorRef) extends ActorSubscriber {
   import akka.stream.actor.ActorPublisherMessage._
-  import MessageReciever._
+  import MessageReceiver._
 
   val MaxBufferSize = 100
   var uid = ""
